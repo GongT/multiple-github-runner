@@ -15,6 +15,11 @@ systemctl enable github-actions@UseR@repoName.service
 systemctl start github-actions@UseR@repoName.service
 ```
 
+# Control all service:
+```bash
+./service.sh start|stop|restart
+```
+
 # Uninstall:
 ```bash
 ./service.sh uninstall
