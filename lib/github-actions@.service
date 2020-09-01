@@ -1,0 +1,32 @@
+[Unit]
+Description=Github actions runner for %i
+After=network.target
+
+[Service]
+Type=simple
+Environment=GITHUB_REPO=%i
+EnvironmentFile=/etc/github-runners/service.txt
+# ExecStartPre=
+ExecStart=/usr/bin/env bash -c "echo 'Starting...' ; source $SRC_ROOT/lib/entry-file.sh"
+ExecStart=/usr/bin/env bash -c "echo 'Cleanup...' ; source $SRC_ROOT/lib/cleanup-stop.sh"
+
+KillSignal=SIGTERM
+TimeoutStopSec=5min
+
+User=root
+Group=root
+PrivateMounts=yes
+PrivateTmp=yes
+ProtectSystem=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=no
+ProtectHome=yes
+
+RuntimeDirectory=github-runners/%i
+StateDirectory=github-runners
+ConfigurationDirectory=github-runners/%i
+LogsDirectory=github-runners/%i
+
+[Install]
+WantedBy=multi-user.target
