@@ -8,7 +8,7 @@ Environment=GITHUB_REPO=%i
 EnvironmentFile=/etc/github-runners/service.txt
 # ExecStartPre=
 ExecStart=/usr/bin/env bash -c "echo 'Starting...' ; source $SRC_ROOT/lib/entry-file.sh"
-ExecStart=/usr/bin/env bash -c "echo 'Cleanup...' ; source $SRC_ROOT/lib/cleanup-stop.sh"
+ExecStopPost=/usr/bin/env bash -c "echo 'Cleanup...' ; source $SRC_ROOT/lib/cleanup-stop.sh"
 
 KillSignal=SIGTERM
 TimeoutStopSec=5min
@@ -22,6 +22,7 @@ PrivateDevices=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=no
 ProtectHome=yes
+ReadWritePaths=/data
 
 RuntimeDirectory=github-runners/%i
 StateDirectory=github-runners
