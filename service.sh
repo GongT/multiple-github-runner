@@ -8,6 +8,8 @@ SVC_FILE="/usr/lib/systemd/system/github-actions@.service"
 ENTRY_FILE="/usr/libexec/github-actions-entry.sh"
 ENV_FILE="$CONFIG_ROOT/service.txt"
 
+ARGS=()
+
 COLLECTED_SERVICES=()
 function collect() {
 	local NAME=$1
@@ -61,10 +63,13 @@ function usage() {
 	echo "    start: start all services."
 	echo "    stop: stop all services."
 	echo "    restart: restart all services."
+	echo "    list: list all services."
+	echo "    logs: display realtime log of all services."
 }
 
 if [[ "$#" -gt 0 ]]; then
-	declare -rx ACTION="$1"
+	ACTION="$1"
+	shift
 else
 	usage
 	exit 0
@@ -84,9 +89,21 @@ uninstall)
 	foreach_project rm_service
 	uninstall
 	;;
+list)
+	export SYSTEMD_COLORS=true
+	ACTION='list-units'
+	ARGS+=(--all --no-pager)
+	;&
 start | stop | status | restart)
 	foreach_project collect
-	systemctl $ACTION "${COLLECTED_SERVICES[@]}"
+	systemctl $ACTION "${ARGS[@]}" --no-pager "${COLLECTED_SERVICES[@]}"
+	;;
+logs)
+	foreach_project collect
+	for I in "${COLLECTED_SERVICES[@]}"; do
+		ARGS+=(-u "$I")
+	done
+	journalctl -f "${ARGS[@]}"
 	;;
 *)
 	echo "invalid action: $ACTION" >&2
