@@ -1,0 +1,10 @@
+[Unit]
+Description=update github actions runner every 1 day
+Wants=network-online.target
+
+[Timer]
+OnBootSec=30min
+OnUnitInactiveSec=1d
+
+[Install]
+WantedBy=timers.target

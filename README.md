@@ -1,12 +1,18 @@
-# Run multiple self hosted runner on same machine
+# Run multiple [self-hosted] github actions runner on one machine
+
+Powered by overlayfs, **linux only**.
+
+# Download runner binary:
+```bash
+bash lib/check-update.sh
+```
 
 # Install:
 ```bash
-./config.sh --url https://github.com/UseR/repoName --token xxxxxxxxxxxxxxx
-```
-```bash
-# to update when THIS repo files update
 ./service.sh install
+
+# for each project
+./config.sh --url https://github.com/UseR/repoName --token xxxxxxxxxxxxxxx
 ```
 
 # Control:
@@ -15,12 +21,14 @@ systemctl enable github-actions@UseR@repoName.service
 systemctl start github-actions@UseR@repoName.service
 ```
 
-# Control all service:
+### Control all service:
 ```bash
 ./service.sh start|stop|restart
 ```
 
-# Uninstall:
+### Uninstall:
 ```bash
 ./service.sh uninstall
 ```
+
+### And more...

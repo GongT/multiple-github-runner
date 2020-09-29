@@ -1,0 +1,12 @@
+[Unit]
+Description=Github actions runner updater
+After=network.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/github-runners/service.txt
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/env bash -c "source $SRC_ROOT/lib/check-update.sh"
+
+KillSignal=SIGTERM
+TimeoutStartSec=10min

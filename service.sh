@@ -5,6 +5,8 @@ set -Eeuo pipefail
 source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/lib/functions.sh"
 
 SVC_FILE="/usr/lib/systemd/system/github-actions@.service"
+SVC_FILE2="/usr/lib/systemd/system/github-actions-runner-updater.service"
+SVC_FILE3="/usr/lib/systemd/system/github-actions-runner-updater.timer"
 ENTRY_FILE="/usr/libexec/github-actions-entry.sh"
 ENV_FILE="$CONFIG_ROOT/service.txt"
 
@@ -28,12 +30,25 @@ function install() {
 
 	echo "Create file: $SVC_FILE"
 	cp "$SRC_ROOT/lib/github-actions@.service" "$SVC_FILE"
+
+	echo "Create file: $SVC_FILE2"
+	cp "$SRC_ROOT/lib/github-actions-runner-updater.service" "$SVC_FILE2"
+
+	echo "Create file: $SVC_FILE3"
+	cp "$SRC_ROOT/lib/github-actions-runner-updater.timer" "$SVC_FILE3"
+
+	systemctl enable --now "$(basename "$SVC_FILE3")"
 	systemctl daemon-reload
 }
 
 function uninstall() {
 	echo "Delete file: $SVC_FILE"
 	rm -f "$SVC_FILE"
+	echo "Delete file: $SVC_FILE2"
+	rm -f "$SVC_FILE2"
+	echo "Delete file: $SVC_FILE3"
+	rm -f "$SVC_FILE3"
+	systemctl disable --now "$(basename "$SVC_FILE3")"
 }
 
 function rm_service() {
@@ -52,6 +67,13 @@ function en_service() {
 		systemctl -q enable "github-actions@$NAME.service"
 	else
 		echo "$NAME: Already enabled"
+	fi
+}
+
+function should_not_empty() {
+	if [[ $# -eq 0 ]]; then
+		echo -e "\e[2mno service.\e[0m"
+		exit 0
 	fi
 }
 
@@ -96,6 +118,7 @@ list)
 	;&
 start | stop | status | restart)
 	foreach_project collect
+	should_not_empty "${ARGS[@]}"
 	systemctl $ACTION "${ARGS[@]}" --no-pager "${COLLECTED_SERVICES[@]}"
 	;;
 logs)
