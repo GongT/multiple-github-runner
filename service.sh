@@ -118,7 +118,7 @@ list)
 	;&
 start | stop | status | restart)
 	foreach_project collect
-	should_not_empty "${ARGS[@]}"
+	should_not_empty "${COLLECTED_SERVICES[@]}"
 	systemctl $ACTION "${ARGS[@]}" --no-pager "${COLLECTED_SERVICES[@]}"
 	;;
 logs)
