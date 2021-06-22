@@ -19,17 +19,20 @@ function collect() {
 }
 
 function install() {
-	if [[ -e "$ENV_FILE" ]]; then
+	if [[ -e $ENV_FILE ]]; then
 		sed -i "/^SRC_ROOT=/d" "$ENV_FILE"
 		sed -i "/^$/d" "$ENV_FILE"
 		if [[ "$(tail -1 "$CONFIG_ROOT/service.txt" | wc -l)" -eq 0 ]]; then
-			echo >> "$ENV_FILE"
+			echo >>"$ENV_FILE"
 		fi
 	fi
-	echo "SRC_ROOT=$SRC_ROOT" >> "$ENV_FILE"
+	echo "SRC_ROOT=$SRC_ROOT" >>"$ENV_FILE"
 
 	echo "Create file: $SVC_FILE"
 	cp "$SRC_ROOT/lib/github-actions@.service" "$SVC_FILE"
+	if [[ $SRC_ROOT == /home/* ]]; then
+		sed -i '/ProtectHome=/d' "$SVC_FILE"
+	fi
 
 	echo "Create file: $SVC_FILE2"
 	cp "$SRC_ROOT/lib/github-actions-runner-updater.service" "$SVC_FILE2"
@@ -53,7 +56,7 @@ function uninstall() {
 
 function rm_service() {
 	local NAME=$1
-	if systemctl is-enabled "github-actions@$NAME.service" &> /dev/null; then
+	if systemctl is-enabled "github-actions@$NAME.service" &>/dev/null; then
 		echo "Disable $NAME..."
 		systemctl -q disable --now "github-actions@$NAME.service"
 	else
@@ -62,7 +65,7 @@ function rm_service() {
 }
 function en_service() {
 	local NAME=$1
-	if ! systemctl is-enabled "github-actions@$NAME.service" &> /dev/null; then
+	if ! systemctl is-enabled "github-actions@$NAME.service" &>/dev/null; then
 		echo "Enable $NAME..."
 		systemctl -q enable "github-actions@$NAME.service"
 	else
@@ -89,7 +92,7 @@ function usage() {
 	echo "    logs: display realtime log of all services."
 }
 
-if [[ "$#" -gt 0 ]]; then
+if [[ $# -gt 0 ]]; then
 	ACTION="$1"
 	shift
 else
@@ -103,7 +106,7 @@ install)
 	foreach_project en_service
 	;;
 install-if-not)
-	if ! [[ -e "$SVC_FILE" ]]; then
+	if ! [[ -e $SVC_FILE ]]; then
 		install
 	fi
 	;;
